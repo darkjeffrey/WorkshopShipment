@@ -1,0 +1,13 @@
+# Build output
+bin/
+obj/
+
+# Packaged zips
+release/
+
+# IDE files
+.vs/
+.idea/
+*.user
+*.suo
+.vscode/
