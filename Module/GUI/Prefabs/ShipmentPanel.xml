@@ -1,0 +1,73 @@
+<Prefab>
+  <Window>
+    <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent">
+      <Children>
+
+        <!-- Card panel, to the right of the left game menu. One card per shipment on the road. -->
+        <Widget DoNotAcceptEvents="true" WidthSizePolicy="Fixed" HeightSizePolicy="CoverChildren" SuggestedWidth="490" HorizontalAlignment="Left" VerticalAlignment="Center" MarginLeft="570" Sprite="text_box_9">
+          <Children>
+            <ListPanel DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="24" MarginRight="24" MarginTop="20" MarginBottom="20" StackLayout.LayoutMethod="VerticalTopToBottom">
+              <Children>
+
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="44" Brush="GameMenu.Siege.Title" Text="@Title" />
+
+                <Widget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="2" Sprite="GradientDivider_9" AlphaFactor="0.4" />
+
+                <!-- Scroll up: shown when earlier cards are hidden -->
+                <ButtonWidget DoNotPassEventsToChildren="true" IsVisible="@CanScrollUp" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="36" MarginTop="6" Brush="GameMenu.Button" Command.Click="ExecuteScrollUp">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="GameMenu.Items.Text.Default" Brush.FontSize="20" Text="@ScrollUpText" />
+                  </Children>
+                </ButtonWidget>
+
+                <!-- The cards on this page. Picture on the left, text on the right. Styled like menu buttons, but not clickable. -->
+                <ListPanel DataSource="{Cards}" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" StackLayout.LayoutMethod="VerticalTopToBottom">
+                  <ItemTemplate>
+                    <ButtonWidget DoNotAcceptEvents="true" DoNotPassEventsToChildren="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="8" MarginBottom="2" Brush="GameMenu.Button">
+                      <Children>
+                        <ListPanel DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="8" MarginRight="8" MarginTop="8" MarginBottom="8" StackLayout.LayoutMethod="HorizontalLeftToRight">
+                          <Children>
+
+                            <!-- Picture: the biggest cargo item, drawn by the game -->
+                            <Widget DoNotAcceptEvents="true" IsVisible="@HasImage" WidthSizePolicy="Fixed" HeightSizePolicy="Fixed" SuggestedWidth="100" SuggestedHeight="84" VerticalAlignment="Top" Sprite="BlankWhiteSquare_9" Color="#00000066">
+                              <Children>
+                                <ImageIdentifierWidget DataSource="{Image}" DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" MarginLeft="4" MarginRight="4" MarginTop="4" MarginBottom="4" ImageId="@Id" AdditionalArgs="@AdditionalArgs" TextureProviderName="@TextureProviderName" />
+                              </Children>
+                            </Widget>
+
+                            <!-- Route, cargo, arrival, escort and status -->
+                            <ListPanel DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="16" StackLayout.LayoutMethod="VerticalTopToBottom">
+                              <Children>
+                                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="32" Brush="GameMenu.Items.Text.Default" Brush.FontSize="24" Brush.TextHorizontalAlignment="Left" Text="@Title" />
+                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Line1" />
+                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Line2" />
+                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Line3" />
+                                <RichTextWidget DoNotAcceptEvents="true" IsVisible="@HasDescription" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="4" Brush="GameMenu.InfoText" Brush.FontSize="17" Brush.TextHorizontalAlignment="Left" Text="@Description" />
+                              </Children>
+                            </ListPanel>
+
+                          </Children>
+                        </ListPanel>
+                      </Children>
+                    </ButtonWidget>
+                  </ItemTemplate>
+                </ListPanel>
+
+                <!-- Scroll down: shown when more cards are hidden below -->
+                <ButtonWidget DoNotPassEventsToChildren="true" IsVisible="@CanScrollDown" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="36" MarginTop="6" Brush="GameMenu.Button" Command.Click="ExecuteScrollDown">
+                  <Children>
+                    <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="StretchToParent" Brush="GameMenu.Items.Text.Default" Brush.FontSize="20" Text="@ScrollDownText" />
+                  </Children>
+                </ButtonWidget>
+
+                <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="26" MarginTop="4" Brush="GameMenu.InfoText" Brush.FontSize="18" Text="@PageText" />
+
+              </Children>
+            </ListPanel>
+          </Children>
+        </Widget>
+
+      </Children>
+    </Widget>
+  </Window>
+</Prefab>
