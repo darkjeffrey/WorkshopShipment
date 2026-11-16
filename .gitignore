@@ -11,3 +11,9 @@ release/
 *.user
 *.suo
 .vscode/
+
+# Private working notes
+handoff.md
+
+# Local Steam Workshop upload settings
+workshop.ini

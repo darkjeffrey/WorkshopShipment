@@ -27,6 +27,7 @@
     <string id="wsh_town_option" text="Arrange a shipment to one of your workshops" />
     <string id="wsh_menu_text" text="A local carter offers to haul goods to one of your workshops under guard. The caravan won't stop to trade on the way, but anyone at war with you can still attack it.&#xA; &#xA;Cargo: {WSH_CARGO}&#xA;Destination: {WSH_DEST}&#xA;Escort: {WSH_ESCORT}&#xA;Cost: {WSH_COST}{GOLD_ICON}&#xA;{WSH_NOTE}&#xA;Your shipments on the road: {WSH_ACTIVE}/{WSH_MAX}" />
     <string id="wsh_load" text="Load the cargo" />
+    <string id="wsh_load_hint" text="Only trade goods can be shipped, such as grain, wine, tools or iron. Weapons, armour and horses can't be taken out of a warehouse." />
     <string id="wsh_destination" text="Choose the destination" />
     <string id="wsh_escort" text="Choose the escort" />
     <string id="wsh_status" text="Check shipments on the road" />
@@ -76,6 +77,7 @@
     <!-- src/ShipmentBehavior.cs -->
     <string id="wsh_sent" text="Your shipment of {COUNT} items has left {ORIGIN} for {DEST}. It should get there in {TIME}." />
     <string id="wsh_party_name" text="Shipment to {DEST}" />
+    <string id="wsh_non_trade_returned" text="Only trade goods can be shipped. {COUNT} other items went back to your inventory." />
     <string id="wsh_redirect_sell" text="Your shipment can't reach a warehouse of yours any more. It is heading to {DEST} to sell the cargo." />
     <string id="wsh_redirect" text="Your shipment to {OLD} can't deliver there any more. It is heading to your warehouse in {DEST} instead." />
     <string id="wsh_one_day" text="1 day" />

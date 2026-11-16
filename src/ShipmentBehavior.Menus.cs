@@ -41,17 +41,28 @@ namespace WorkshopShipments
 
                 starter.AddGameMenu(MenuId,
                     "{=wsh_menu_text}A local carter offers to haul goods to one of your workshops under guard. The caravan won't stop to trade on the way, but anyone at war with you can still attack it.\n \nCargo: {WSH_CARGO}\nDestination: {WSH_DEST}\nEscort: {WSH_ESCORT}\nCost: {WSH_COST}{GOLD_ICON}\n{WSH_NOTE}\nYour shipments on the road: {WSH_ACTIVE}/{WSH_MAX}",
-                    args => RefreshTexts(),
+                    args =>
+                    {
+                        // Back from the cargo screen (or any other way in): close the loading state first.
+                        LoadingCargo = false;
+                        ReturnNonTradeGoods();
+                        RefreshTexts();
+                    },
                     GameMenu.MenuOverlayType.SettlementWithBoth);
 
                 starter.AddGameMenuOption(MenuId, "wsh_load", "{=wsh_load}Load the cargo",
                     args =>
                     {
                         args.optionLeaveType = GameMenuOption.LeaveType.Trade;
+                        args.Tooltip = new TextObject("{=wsh_load_hint}Only trade goods can be shipped, such as grain, wine, tools or iron. Weapons, armour and horses can't be taken out of a warehouse.");
                         RefreshTexts();
                         return true;
                     },
-                    args => InventoryScreenHelper.OpenScreenAsStash(_pendingCargo));
+                    args =>
+                    {
+                        LoadingCargo = true;
+                        InventoryScreenHelper.OpenScreenAsStash(_pendingCargo);
+                    });
 
                 starter.AddGameMenuOption(MenuId, "wsh_destination", "{=wsh_destination}Choose the destination",
                     args =>
@@ -249,22 +260,22 @@ namespace WorkshopShipments
 
             List<Shipment> active = ActiveShipments();
             int number = 0;
-            foreach (Shipment s in active)
+            foreach (Shipment shipment in active)
             {
-                MobileParty party = s.Party;
-                Settlement dest = Settlement.Find(s.DestId);
+                MobileParty party = shipment.Party;
+                Settlement dest = Settlement.Find(shipment.DestId);
                 number++;
 
                 ItemObject biggest = Stacks(party.ItemRoster).Select(x => x.Key).FirstOrDefault();
                 cards.Add(new ShipmentCardVM(
                     biggest == null ? null : new ItemImageIdentifierVM(biggest),
-                    new TextObject("{=wsh_card_route}{NUMBER}. {ROUTE}").SetTextVariable("NUMBER", number).SetTextVariable("ROUTE", Route(s)).ToString(),
+                    new TextObject("{=wsh_card_route}{NUMBER}. {ROUTE}").SetTextVariable("NUMBER", number).SetTextVariable("ROUTE", Route(shipment)).ToString(),
                     new TextObject("{=wsh_card_cargo}Cargo: {CARGO}").SetTextVariable("CARGO", CargoSummary(party.ItemRoster)).ToString(),
                     new TextObject("{=wsh_card_arrives}Arrives: {ARRIVAL}").SetTextVariable("ARRIVAL", Arrival(party, dest)).ToString(),
                     new TextObject("{=wsh_card_escort_status}{ESCORT}, {MEN} men. {STATUS}")
-                        .SetTextVariable("ESCORT", Escorts.Name(s.Tier))
+                        .SetTextVariable("ESCORT", Escorts.Name(shipment.Tier))
                         .SetTextVariable("MEN", party.MemberRoster.TotalHealthyCount)
-                        .SetTextVariable("STATUS", State(s, party)).ToString(),
+                        .SetTextVariable("STATUS", State(shipment, party)).ToString(),
                     Position(party)));
             }
 
@@ -277,19 +288,19 @@ namespace WorkshopShipments
         }
 
         /// <summary>"Pravend to Sanala".</summary>
-        private static TextObject Route(Shipment s)
+        private static TextObject Route(Shipment shipment)
         {
-            Settlement origin = string.IsNullOrEmpty(s.OriginId) ? null : Settlement.Find(s.OriginId);
-            Settlement dest = Settlement.Find(s.DestId);
+            Settlement origin = string.IsNullOrEmpty(shipment.OriginId) ? null : Settlement.Find(shipment.OriginId);
+            Settlement dest = Settlement.Find(shipment.DestId);
             return new TextObject("{=wsh_route}{ORIGIN} to {DEST}")
                 .SetTextVariable("ORIGIN", origin?.Name ?? new TextObject("{=wsh_unknown}unknown"))
                 .SetTextVariable("DEST", dest?.Name ?? new TextObject("{=wsh_unknown}unknown"));
         }
 
-        private static TextObject State(Shipment s, MobileParty party)
+        private static TextObject State(Shipment shipment, MobileParty party)
         {
             if (party.MapEvent != null) return new TextObject("{=wsh_state_fight}Under attack!");
-            if (s.SellOnArrival) return new TextObject("{=wsh_state_sell}On the road, going to sell the cargo");
+            if (shipment.SellOnArrival) return new TextObject("{=wsh_state_sell}On the road, going to sell the cargo");
             return new TextObject("{=wsh_state_road}On the road");
         }
 

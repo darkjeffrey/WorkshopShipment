@@ -39,10 +39,10 @@
                             <ListPanel DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginLeft="16" StackLayout.LayoutMethod="VerticalTopToBottom">
                               <Children>
                                 <TextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="Fixed" SuggestedHeight="32" Brush="GameMenu.Items.Text.Default" Brush.FontSize="24" Brush.TextHorizontalAlignment="Left" Text="@Title" />
-                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Line1" />
-                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Line2" />
-                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Line3" />
-                                <RichTextWidget DoNotAcceptEvents="true" IsVisible="@HasDescription" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="4" Brush="GameMenu.InfoText" Brush.FontSize="17" Brush.TextHorizontalAlignment="Left" Text="@Description" />
+                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Cargo" />
+                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Arrival" />
+                                <RichTextWidget DoNotAcceptEvents="true" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="2" Brush="GameMenu.Text" Brush.FontSize="19" Brush.TextHorizontalAlignment="Left" Text="@Status" />
+                                <RichTextWidget DoNotAcceptEvents="true" IsVisible="@HasPosition" WidthSizePolicy="StretchToParent" HeightSizePolicy="CoverChildren" MarginTop="4" Brush="GameMenu.InfoText" Brush.FontSize="17" Brush.TextHorizontalAlignment="Left" Text="@Position" />
                               </Children>
                             </ListPanel>
 

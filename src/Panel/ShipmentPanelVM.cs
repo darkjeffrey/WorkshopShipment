@@ -12,7 +12,7 @@ namespace WorkshopShipments
         /// <summary>How many cards are shown at once; the rest are reached with the scroll buttons.</summary>
         public const int PageSize = 4;
 
-        private readonly List<ShipmentCardVM> _all;
+        private readonly List<ShipmentCardVM> _allCards;
         private int _offset;
         private bool _canUp;
         private bool _canDown;
@@ -21,7 +21,7 @@ namespace WorkshopShipments
         public ShipmentPanelVM(string title, List<ShipmentCardVM> cards)
         {
             Title = title;
-            _all = cards;
+            _allCards = cards;
             Cards = new MBBindingList<ShipmentCardVM>();
             Refresh();
         }
@@ -83,7 +83,7 @@ namespace WorkshopShipments
         /// <summary>Moves the visible window by whole cards (negative is up).</summary>
         private void Scroll(int cards)
         {
-            int max = Math.Max(0, _all.Count - PageSize);
+            int max = Math.Max(0, _allCards.Count - PageSize);
             int next = Math.Max(0, Math.Min(max, _offset + cards));
             if (next == _offset) return;
             _offset = next;
@@ -93,15 +93,15 @@ namespace WorkshopShipments
         private void Refresh()
         {
             Cards.Clear();
-            foreach (ShipmentCardVM card in _all.Skip(_offset).Take(PageSize)) Cards.Add(card);
+            foreach (ShipmentCardVM card in _allCards.Skip(_offset).Take(PageSize)) Cards.Add(card);
 
             CanScrollUp = _offset > 0;
-            CanScrollDown = _offset + PageSize < _all.Count;
-            PageText = _all.Count > PageSize
+            CanScrollDown = _offset + PageSize < _allCards.Count;
+            PageText = _allCards.Count > PageSize
                 ? new TextObject("{=wsh_page}{FIRST}-{LAST} of {TOTAL}")
                     .SetTextVariable("FIRST", _offset + 1)
-                    .SetTextVariable("LAST", Math.Min(_all.Count, _offset + PageSize))
-                    .SetTextVariable("TOTAL", _all.Count)
+                    .SetTextVariable("LAST", Math.Min(_allCards.Count, _offset + PageSize))
+                    .SetTextVariable("TOTAL", _allCards.Count)
                     .ToString()
                 : "";
         }
@@ -110,7 +110,7 @@ namespace WorkshopShipments
         {
             base.OnFinalize();
             Cards.Clear();
-            foreach (ShipmentCardVM card in _all) card.OnFinalize();
+            foreach (ShipmentCardVM card in _allCards) card.OnFinalize();
         }
     }
 }

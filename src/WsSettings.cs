@@ -10,7 +10,7 @@ namespace WorkshopShipments
     {
         private static readonly WorkshopShipmentsMcmSettings Defaults = new WorkshopShipmentsMcmSettings();
 
-        private static WorkshopShipmentsMcmSettings S
+        private static WorkshopShipmentsMcmSettings Current
         {
             get
             {
@@ -19,16 +19,16 @@ namespace WorkshopShipments
             }
         }
 
-        public static bool Enabled => S.Enabled;
-        public static bool DebugMessages => S.DebugMessages;
-        public static int BaseFee => S.BaseFee;
-        public static float FeePerWeight => S.FeePerWeight;
-        public static int BasicSize => S.BasicSize;
-        public static int ArmedSize => S.ArmedSize;
-        public static int ArmedFee => S.ArmedFee;
-        public static int VeteranSize => S.VeteranSize;
-        public static int VeteranFee => S.VeteranFee;
-        public static int MaxActive => S.MaxActive;
-        public static bool ShowPosition => S.ShowPosition;
+        public static bool Enabled => Current.Enabled;
+        public static bool DebugMessages => Current.DebugMessages;
+        public static int BaseFee => Current.BaseFee;
+        public static float FeePerWeight => Current.FeePerWeight;
+        public static int BasicSize => Current.BasicSize;
+        public static int ArmedSize => Current.ArmedSize;
+        public static int ArmedFee => Current.ArmedFee;
+        public static int VeteranSize => Current.VeteranSize;
+        public static int VeteranFee => Current.VeteranFee;
+        public static int MaxActive => Current.MaxActive;
+        public static bool ShowPosition => Current.ShowPosition;
     }
 }

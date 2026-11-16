@@ -40,11 +40,17 @@ namespace WorkshopShipments
             _instance = this;
         }
 
+        /// <summary>True while the "Load the cargo" screen is open (used by the cargo patch).</summary>
+        public static bool LoadingCargo { get; set; }
+
+        /// <summary>Only trade goods can be shipped: the warehouse screen can't move anything else out.</summary>
+        public static bool CanShip(EquipmentElement item) => item.Item != null && item.Item.IsTradeGood && !item.IsQuestItem;
+
         /// <summary>True for a party this mod created (used by the food patch).</summary>
         public static bool IsShipment(MobileParty party)
         {
             return party != null && _instance != null
-                && _instance._shipments.Any(s => s.Party == party || (s.Party == null && s.PartyId == party.StringId));
+                && _instance._shipments.Any(shipment => shipment.Party == party || (shipment.Party == null && shipment.PartyId == party.StringId));
         }
 
         public override void RegisterEvents()
@@ -58,7 +64,7 @@ namespace WorkshopShipments
 
         public override void SyncData(IDataStore dataStore)
         {
-            List<string> saved = _shipments.Select(s => s.ToSaveString()).ToList();
+            List<string> saved = _shipments.Select(shipment => shipment.ToSaveString()).ToList();
             dataStore.SyncData("wsh_shipments", ref saved);
             dataStore.SyncData("wsh_pending_cargo", ref _pendingCargo);
             dataStore.SyncData("wsh_average_speed", ref _measuredDistancePerHour);
@@ -66,7 +72,7 @@ namespace WorkshopShipments
             if (dataStore.IsLoading)
             {
                 _shipments.Clear();
-                _shipments.AddRange((saved ?? new List<string>()).Select(Shipment.FromSaveString).Where(s => s != null));
+                _shipments.AddRange((saved ?? new List<string>()).Select(Shipment.FromSaveString).Where(shipment => shipment != null));
                 _pendingCargo ??= new ItemRoster();
             }
         }
@@ -86,7 +92,7 @@ namespace WorkshopShipments
         private float FreeSpace(Settlement town)
         {
             float used = Warehouses.Weight(Warehouses.GetRoster(town))
-                + ActiveShipments().Where(s => s.DestId == town.StringId).Sum(s => Warehouses.Weight(s.Party.ItemRoster));
+                + ActiveShipments().Where(shipment => shipment.DestId == town.StringId).Sum(shipment => Warehouses.Weight(shipment.Party.ItemRoster));
             return Math.Max(0f, Warehouses.Capacity - used);
         }
 
@@ -98,6 +104,8 @@ namespace WorkshopShipments
                 Settlement dest = _pendingDest;
                 if (origin == null || dest == null) return;
 
+                ReturnNonTradeGoods();
+                if (Warehouses.ItemCount(_pendingCargo) == 0) return;
                 int cost = CurrentCost();
                 int itemCount = Warehouses.ItemCount(_pendingCargo);
                 MobileParty party = CreateShipmentParty(origin, dest);
@@ -150,6 +158,24 @@ namespace WorkshopShipments
             party.SetMoveGoToSettlement(dest, MobileParty.NavigationType.Default, false);
         }
 
+        /// <summary>Gives back anything in the cargo that isn't a trade good, in case it got there some other way.</summary>
+        private void ReturnNonTradeGoods()
+        {
+            if (_pendingCargo == null || MobileParty.MainParty == null) return;
+            int returned = 0;
+            for (int i = _pendingCargo.Count - 1; i >= 0; i--)
+            {
+                ItemRosterElement element = _pendingCargo.GetElementCopyAtIndex(i);
+                if (element.Amount <= 0 || CanShip(element.EquipmentElement)) continue;
+                MobileParty.MainParty.ItemRoster.AddToCounts(element.EquipmentElement, element.Amount);
+                _pendingCargo.AddToCounts(element.EquipmentElement, -element.Amount);
+                returned += element.Amount;
+            }
+            if (returned > 0)
+                Log.Info(new TextObject("{=wsh_non_trade_returned}Only trade goods can be shipped. {COUNT} other items went back to your inventory.")
+                    .SetTextVariable("COUNT", returned), Colors.Yellow);
+        }
+
         private void ReturnPendingCargo()
         {
             if (_pendingCargo == null || _pendingCargo.Count == 0 || MobileParty.MainParty == null) return;
@@ -160,26 +186,28 @@ namespace WorkshopShipments
         // Covers every way out of town, including ones that skip the "Back to town" option.
         private void OnSettlementLeft(MobileParty party, Settlement settlement)
         {
-            if (party != null && party == MobileParty.MainParty) ReturnPendingCargo();
+            if (party == null || party != MobileParty.MainParty) return;
+            LoadingCargo = false;
+            ReturnPendingCargo();
         }
 
         // ---------------- Travel ----------------
 
-        private static MobileParty FindParty(Shipment s)
+        private static MobileParty FindParty(Shipment shipment)
         {
-            return s.Party ??= MobileParty.All.FirstOrDefault(p => p.StringId == s.PartyId);
+            return shipment.Party ??= MobileParty.All.FirstOrDefault(p => p.StringId == shipment.PartyId);
         }
 
         private List<Shipment> ActiveShipments()
         {
-            return _shipments.Where(s => !s.Delivered && FindParty(s) != null && s.Party.IsActive).ToList();
+            return _shipments.Where(shipment => !shipment.Delivered && FindParty(shipment) != null && shipment.Party.IsActive).ToList();
         }
 
         private void OnHourlyTick()
         {
             try
             {
-                foreach (Shipment s in _shipments.ToList()) UpdateShipment(s);
+                foreach (Shipment shipment in _shipments.ToList()) UpdateShipment(shipment);
             }
             catch (Exception e)
             {
@@ -187,39 +215,39 @@ namespace WorkshopShipments
             }
         }
 
-        private void UpdateShipment(Shipment s)
+        private void UpdateShipment(Shipment shipment)
         {
-            MobileParty party = FindParty(s);
+            MobileParty party = FindParty(shipment);
             if (party == null || !party.IsActive)
             {
-                _shipments.Remove(s);
+                _shipments.Remove(shipment);
                 return;
             }
             if (party.MapEvent != null) return;
 
             // Delivered parties are removed here rather than inside the settlement-entered event.
-            if (s.Delivered)
+            if (shipment.Delivered)
             {
-                _shipments.Remove(s);
+                _shipments.Remove(shipment);
                 DestroyPartyAction.Apply(null, party);
                 return;
             }
 
-            Settlement dest = Settlement.Find(s.DestId);
-            if (!s.SellOnArrival && !CanDeliverTo(dest)) dest = Redirect(s, party);
+            Settlement dest = Settlement.Find(shipment.DestId);
+            if (!shipment.SellOnArrival && !CanDeliverTo(dest)) dest = Redirect(shipment, party);
             if (dest == null) return;
 
             if (party.CurrentSettlement == dest)
             {
-                Arrive(s, party, dest);
+                Arrive(shipment, party, dest);
                 return;
             }
 
-            MeasureSpeed(s, party, dest);
+            MeasureSpeed(shipment, party, dest);
             if (party.TargetSettlement != dest || party.DefaultBehavior != AiBehavior.GoToSettlement)
             {
                 SendTo(party, dest);
-                s.LastDistanceLeft = -1f;
+                shipment.LastDistanceLeft = -1f;
                 Log.Debug(party.StringId + " sent back on the road to " + dest.StringId);
             }
         }
@@ -231,23 +259,23 @@ namespace WorkshopShipments
         /// The destination can't take the shipment any more (war, or the workshop is gone). Goes to the nearest other
         /// warehouse; if there is none, to the nearest friendly town to sell the cargo there.
         /// </summary>
-        private Settlement Redirect(Shipment s, MobileParty party)
+        private Settlement Redirect(Shipment shipment, MobileParty party)
         {
-            Settlement old = Settlement.Find(s.DestId);
+            Settlement old = Settlement.Find(shipment.DestId);
             Settlement next = Warehouses.ValidDestinations(null).OrderBy(t => PartyDistance(party, t)).FirstOrDefault();
             if (next == null)
             {
                 next = Town.AllTowns.Select(t => t.Settlement).Where(Warehouses.IsReachable)
                     .OrderBy(t => PartyDistance(party, t)).FirstOrDefault();
-                s.SellOnArrival = true;
+                shipment.SellOnArrival = true;
             }
             if (next == null) return null;
 
-            s.DestId = next.StringId;
-            s.LastDistanceLeft = -1f;
+            shipment.DestId = next.StringId;
+            shipment.LastDistanceLeft = -1f;
             party.SetMoveGoToSettlement(next, MobileParty.NavigationType.Default, false);
 
-            TextObject message = s.SellOnArrival
+            TextObject message = shipment.SellOnArrival
                 ? new TextObject("{=wsh_redirect_sell}Your shipment can't reach a warehouse of yours any more. It is heading to {DEST} to sell the cargo.")
                 : new TextObject("{=wsh_redirect}Your shipment to {OLD} can't deliver there any more. It is heading to your warehouse in {DEST} instead.");
             Log.Info(message
@@ -260,12 +288,12 @@ namespace WorkshopShipments
         /// Keeps a running average of how much closer a shipment gets each hour, in the same map distance the travel
         /// times use, so the estimates match how fast shipments really move.
         /// </summary>
-        private void MeasureSpeed(Shipment s, MobileParty party, Settlement dest)
+        private void MeasureSpeed(Shipment shipment, MobileParty party, Settlement dest)
         {
             bool travelling = party.CurrentSettlement == null && party.TargetSettlement == dest;
             float distanceLeft = travelling ? PartyDistance(party, dest) : -1f;
-            float last = s.LastDistanceLeft;
-            s.LastDistanceLeft = distanceLeft;
+            float last = shipment.LastDistanceLeft;
+            shipment.LastDistanceLeft = distanceLeft;
             if (last <= 0f || distanceLeft <= 0f || last == float.MaxValue || distanceLeft == float.MaxValue) return;
 
             float perHour = last - distanceLeft;
@@ -324,8 +352,8 @@ namespace WorkshopShipments
             try
             {
                 if (party == null || settlement == null) return;
-                Shipment s = _shipments.FirstOrDefault(x => !x.Delivered && FindParty(x) == party);
-                if (s != null && s.DestId == settlement.StringId) Arrive(s, party, settlement);
+                Shipment shipment = _shipments.FirstOrDefault(x => !x.Delivered && FindParty(x) == party);
+                if (shipment != null && shipment.DestId == settlement.StringId) Arrive(shipment, party, settlement);
             }
             catch (Exception e)
             {
@@ -333,10 +361,10 @@ namespace WorkshopShipments
             }
         }
 
-        private void Arrive(Shipment s, MobileParty party, Settlement town)
+        private void Arrive(Shipment shipment, MobileParty party, Settlement town)
         {
-            var (stored, sold, gold) = Warehouses.Unload(party.ItemRoster, town, s.SellOnArrival);
-            s.Delivered = true;
+            var (stored, sold, gold) = Warehouses.Unload(party.ItemRoster, town, shipment.SellOnArrival);
+            shipment.Delivered = true;
 
             TextObject text = sold == 0
                 ? new TextObject("{=wsh_arrived}Your shipment reached {DEST}. {STORED} items were put in your warehouse.")
@@ -355,12 +383,12 @@ namespace WorkshopShipments
         {
             try
             {
-                Shipment s = _shipments.FirstOrDefault(x => x.Party == party || x.PartyId == party?.StringId);
-                if (s == null) return;
-                _shipments.Remove(s);
-                if (s.Delivered) return;
+                Shipment shipment = _shipments.FirstOrDefault(x => x.Party == party || x.PartyId == party?.StringId);
+                if (shipment == null) return;
+                _shipments.Remove(shipment);
+                if (shipment.Delivered) return;
 
-                Settlement dest = Settlement.Find(s.DestId);
+                Settlement dest = Settlement.Find(shipment.DestId);
                 TextObject text = destroyer != null
                     ? new TextObject("{=wsh_lost_to}Your shipment to {DEST} was taken by {ENEMY}.").SetTextVariable("ENEMY", destroyer.Name)
                     : new TextObject("{=wsh_lost}Your shipment to {DEST} was lost.");

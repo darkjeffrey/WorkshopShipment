@@ -1,17 +1,16 @@
 # Workshop Shipments
 
-A Mount & Blade II: Bannerlord mod (v1.4.8) that lets you send goods from any town to one of your workshops. You load the cargo, pick the workshop town and pay a carter. A guarded caravan then carries the goods across the map and puts them into your workshop warehouse there. The shipment travels like a trade caravan but never trades your goods on the way. Bandits and anyone at war with you can still attack it and take the cargo.
+A Mount & Blade II: Bannerlord mod (v1.5.7) that lets you send goods from any town to one of your workshops. You load the cargo, pick the workshop town and pay a carter. A guarded caravan then carries the goods across the map and puts them into your workshop warehouse there. The shipment travels like a trade caravan but never trades your goods on the way. Bandits and anyone at war with you can still attack it and take the cargo.
 
 ## How it works
 
 - In any town, choose **Arrange a shipment to one of your workshops** in the town menu. It shows up once you own a workshop, and is only clickable when you own one in another town that isn't at war with you.
-- **Load the cargo** opens a stash screen. Move whatever you want to send from your inventory to the shipment side; buy goods at the market first if you need to.
+- **Load the cargo** opens a stash screen. Move whatever you want to send from your inventory to the shipment side; buy goods at the market first if you need to. Only trade goods (grain, wine, tools, iron and so on) can be shipped, because the game's warehouse screen can't move weapons, armour or horses out again.
 - **Choose the destination** lists your workshop towns with how long the trip takes (in days and hours). Hover over a town to see how much room is left in its warehouse.
 - **Choose the escort** picks one of three escorts: Basic guard (12 caravan guards, no extra cost), Armed escort (25 men, half of them trained soldiers) or Veteran escort (40 men, mostly veteran elite troops). Bigger escorts cost more and make the caravan a harder target.
 - **Send the shipment** charges the fee (base fee, plus weight times distance, plus the escort's extra cost) and the caravan sets out from the town gate.
 - **Check shipments on the road** opens a panel beside the menu with a card for every shipment that is travelling: a picture of its biggest cargo item, where it started and where it is going, what it carries (the three biggest stacks, item count and value), when it should arrive, its escort and how many men are left, and its status (on the road, under attack, or going to sell the cargo). With the "Show where shipments are" option on, each card also says which settlement the shipment is near. The panel shows 4 cards at a time; use Scroll up and Scroll down for the rest.
-- When it arrives, the cargo goes into that town's warehouse. Anything that doesn't fit is sold at that town's market and you get the money.
-- If the destination stops being valid on the way (war, or you lost the workshop), the caravan heads to your nearest other warehouse. If there isn't one, it goes to the nearest friendly town and sells the cargo there.
+- When it arrives, the cargo goes into that town's warehouse. Anything that doesn't fit is sold at that town's market and you get the money.- If the destination stops being valid on the way (war, or you lost the workshop), the caravan heads to your nearest other warehouse. If there isn't one, it goes to the nearest friendly town and sells the cargo there.
 - If the caravan is defeated, the cargo is lost to the attackers and you get a message.
 - The escorts don't eat the food in the cargo.
 - Travel times start as an estimate and get more accurate as your shipments travel, because the mod measures how fast they really move.

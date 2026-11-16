@@ -6,14 +6,14 @@ namespace WorkshopShipments
     /// <summary>One shipment in the side panel: a picture of its biggest cargo item and a few lines of text.</summary>
     public sealed class ShipmentCardVM : ViewModel
     {
-        public ShipmentCardVM(ImageIdentifierVM image, string title, string line1, string line2, string line3, string description)
+        public ShipmentCardVM(ImageIdentifierVM image, string title, string cargo, string arrival, string status, string position)
         {
             Image = image;
             Title = title ?? "";
-            Line1 = line1 ?? "";
-            Line2 = line2 ?? "";
-            Line3 = line3 ?? "";
-            Description = description ?? "";
+            Cargo = cargo ?? "";
+            Arrival = arrival ?? "";
+            Status = status ?? "";
+            Position = position ?? "";
         }
 
         /// <summary>An item picture drawn by the game (null = no picture).</summary>
@@ -27,19 +27,19 @@ namespace WorkshopShipments
         public string Title { get; }
 
         [DataSourceProperty]
-        public string Line1 { get; }
+        public string Cargo { get; }
 
         [DataSourceProperty]
-        public string Line2 { get; }
+        public string Arrival { get; }
 
         [DataSourceProperty]
-        public string Line3 { get; }
+        public string Status { get; }
 
         [DataSourceProperty]
-        public string Description { get; }
+        public string Position { get; }
 
         [DataSourceProperty]
-        public bool HasDescription => Description.Length > 0;
+        public bool HasPosition => Position.Length > 0;
 
         public override void OnFinalize()
         {
