@@ -40,6 +40,14 @@ Bannerlord.Harmony, ButterLib, UIExtenderEx and Mod Configuration Menu v5. Load 
 
 With the `build.bat` in the `source` folder, run `build.bat repos\WorkshopShipments\src\WorkshopShipments.csproj` (or set its PROJECT line to that path). Without it, run `dotnet build -c Release` from the `src` folder. The build copies the dll, `SubModule.xml`, `ModuleData` and `GUI` into `Modules\WorkshopShipments` in the game folder. If the game is installed somewhere else, pass `/p:GameFolder="..."`.
 
+## Releasing
+
+1. Add a `## <version>` section to `CHANGELOG.md`, run `bltools.py bump WorkshopShipments <version>`, rebuild and push.
+2. Run `bltools.py package WorkshopShipments` to make `release/WorkshopShipments-v<version>.zip`.
+3. Publish a GitHub Release tagged `v<version>` with that zip attached. The "Publish to Nexus Mods" workflow then uploads it to Nexus as the new version of the main file, with the changelog section as its changelog. It stops if the tag, `SubModule.xml` and the zip don't have the same version.
+
+The workflow needs the repository secret `NEXUS_API_KEY` (your personal key from Nexus Mods' API keys page).
+
 ## Translations
 
 All English text is in the code as `{=id}English text`. `Module/ModuleData/Languages/std_WorkshopShipments.xml` lists every string and is the template for translations.
